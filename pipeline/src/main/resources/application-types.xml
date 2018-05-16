@@ -1,0 +1,67 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<types:mule xmlns:types="http://www.mulesoft.org/schema/mule/types">
+  <types:catalog>
+    <types:type name="SalesforceQueryOut" format="csv">
+      <types:shape format="weave" example="examples/Rasa - Workato - Sheet2.csv"><![CDATA[type SalesforceQueryOut = Array<{|
+  customerID__c?: String, 
+  gender__c?: String, 
+  SeniorCitizen__c?: String, 
+  Partner__c?: String, 
+  Dependents__c?: Number, 
+  tenure__c?: Number
+|}> {"MetadataFormat": "csv"}]]></types:shape>
+      <types:properties>
+        <types:property name="headerLineNumber" value="0"/>
+        <types:property name="header" value="true"/>
+        <types:property name="isQuotedString" value="false"/>
+      </types:properties>
+    </types:type>
+    <types:type name="CSVInput" format="csv">
+      <types:shape format="weave"><![CDATA[type CSVInput = Array<{|
+  customerID?: String, 
+  gender?: String, 
+  SeniorCitizen?: String, 
+  Partner?: String, 
+  Dependents?: String, 
+  tenure?: Number
+|}> {"MetadataFormat": "csv"}]]></types:shape>
+      <types:properties>
+        <types:property name="headerLineNumber" value="0"/>
+        <types:property name="header" value="true"/>
+        <types:property name="isQuotedString" value="false"/>
+      </types:properties>
+    </types:type>
+  </types:catalog>
+  <types:enrichment select="#bb919550-440f-4e87-905f-86301ec0ddc4">
+    <types:processor-declaration>
+      <types:input-event>
+        <types:message>
+          <types:payload type="SalesforceQueryOut"/>
+        </types:message>
+      </types:input-event>
+    </types:processor-declaration>
+  </types:enrichment>
+  <types:enrichment select="#087cfe34-3212-499f-b4e1-4d38378fabf6">
+    <types:processor-declaration>
+      <types:input-event>
+        <types:message>
+          <types:payload type="SalesforceQueryOut"/>
+        </types:message>
+      </types:input-event>
+      <types:output-event>
+        <types:message>
+          <types:payload type="CSVInput"/>
+        </types:message>
+      </types:output-event>
+    </types:processor-declaration>
+  </types:enrichment>
+  <types:enrichment select="#dd5673a9-37a2-4b8a-b228-d6aaeac6ee4b">
+    <types:processor-declaration>
+      <types:input-event>
+        <types:message>
+          <types:payload type="SalesforceQueryOut"/>
+        </types:message>
+      </types:input-event>
+    </types:processor-declaration>
+  </types:enrichment>
+</types:mule>

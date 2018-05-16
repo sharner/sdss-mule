@@ -1,0 +1,23 @@
+{
+  "configs": [
+    "churn_prediction.xml"
+  ],
+  "secureProperties": [],
+  "redeploymentEnabled": true,
+  "name": "churn-service",
+  "minMuleVersion": "4.1.1",
+  "requiredProduct": "MULE_EE",
+  "classLoaderModelLoaderDescriptor": {
+    "id": "mule",
+    "attributes": {
+      "exportedResources": [
+        "api/.gitignore",
+        "api/churn_prediction.raml"
+      ]
+    }
+  },
+  "bundleDescriptorLoader": {
+    "id": "mule",
+    "attributes": {}
+  }
+}
