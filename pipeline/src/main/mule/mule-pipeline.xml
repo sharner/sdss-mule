@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce"
+	xmlns:scripting="http://www.mulesoft.org/schema/mule/scripting" xmlns:file="http://www.mulesoft.org/schema/mule/file" xmlns:s3="http://www.mulesoft.org/schema/mule/s3" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/s3 http://www.mulesoft.org/schema/mule/s3/current/mule-s3.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd
+http://www.mulesoft.org/schema/mule/scripting http://www.mulesoft.org/schema/mule/scripting/current/mule-scripting.xsd
+http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd">
+	<s3:config name="Amazon_S3_Configuration" doc:name="Amazon S3 Configuration" doc:id="4e759a5d-9d6e-46e0-871a-bb3e26fa7122" >
+		<s3:basic-connection accessKey="${s3.key}" secretKey="${s3.secret}" />
+	</s3:config>
+	<file:config name="File_Config" doc:name="File Config" doc:id="19c068ca-97a4-474b-802c-8e1a6834603d" >
+		<file:connection workingDir="/tmp" />
+	</file:config>
+	<file:matcher name="Matcher" doc:name="Matcher" doc:id="4ee0679c-e0c5-4128-97e4-0130adff4a8b" filenamePattern="mule-pipeline"/>
+	<salesforce:sfdc-config name="Salesforce_Config" doc:name="Salesforce Config" doc:id="7cdf2a27-beb3-4da8-ae27-c4eedfc702aa" >
+		<salesforce:basic-connection username="${sfdc.username}" password="${sfdc.password}" securityToken="${sfdc.token}" />
+	</salesforce:sfdc-config>
+	<db:config name="Database_Config" doc:name="Database Config" doc:id="8b59cb61-3b3f-46b3-bcfd-411ea68f2353" >
+		<db:generic-connection driverClassName="org.postgresql.Driver" url="jdbc:postgresql://${db.host}:${db.port}/${db.database}?user=${db.user}&amp;password=${db.pwd}"/>
+	</db:config>
+	<configuration-properties doc:name="Configuration properties" doc:id="a237e88a-ffd8-4643-9025-a1c05524286c" file="dev.yaml" />
+	<flow name="ScheduledPipeline" doc:id="9fe14660-c2f3-42ac-a1cd-3cddb010428e" initialState="started">
+		<scheduler doc:name="Scheduler" doc:id="80c7b60f-b315-4a91-8ff9-7f56aba827aa" >
+			<scheduling-strategy >
+				<fixed-frequency frequency="10" timeUnit="SECONDS"/>
+			</scheduling-strategy>
+		</scheduler>
+		<flow-ref doc:name="AcquireData" doc:id="6eb7d8d3-9110-402c-a253-bf1304225b80" name="AcquireData"/>
+		<flow-ref doc:name="TrainModel" doc:id="eab53b59-365d-48cb-ad95-bb78a29c66c1" name="TrainModel"/>
+	</flow>
+	<sub-flow name="AcquireData" doc:id="23eb83fd-fa8e-4799-bce5-2930c3806ed5" >
+		<file:list doc:name="List" doc:id="3583ec19-c588-4ed0-b790-1d4aef9fde28" directoryPath="/tmp/" recursive="true" matcher="Matcher" />
+		<choice doc:name="Choice" doc:id="c6f46a56-73aa-4f0b-a744-f07dc0d51a4b">
+			<when expression="#[sizeOf(payload) &gt; 0]">
+				<logger level="INFO" doc:name="Logger" doc:id="70b7cd17-be24-4adf-92c2-db2cb055ab07" message="Training is up to date.  Nothing to do." />
+			</when>
+			<otherwise>
+				<flow-ref doc:name="AcquireS3Data" doc:id="f1727321-a732-4a01-8229-56739954a4f7" name="AcquireS3Data"/>
+				<flow-ref doc:name="AcquireSalesforce" doc:id="5a57f3a3-8169-4a6e-b96a-ee7c5155f449" name="AcquireSalesforce"/>
+				<logger level="INFO" doc:name="Logger" doc:id="e7e9f41e-e492-45bd-9696-be37777011af" message="Done acquiring data from Salesforce and S3"/>
+			</otherwise>
+		</choice>
+	</sub-flow>
+	<sub-flow name="AcquireBillingData" doc:id="92954529-8dd6-4142-b0cf-d136f6bb72a1" >
+		<db:select doc:name="Select" doc:id="99fed18a-711e-44c2-befe-731e0915263d" config-ref="Database_Config">
+			<db:sql >select * from billing</db:sql>
+		</db:select>
+		<file:write doc:name="WriteToCSV" doc:id="dd5673a9-37a2-4b8a-b228-d6aaeac6ee4b" config-ref="File_Config" path="mule-pipeline/billing.csv" />
+	</sub-flow>
+	<sub-flow name="AcquireS3Data" doc:id="c16fc8e6-737d-451e-97df-81abcc150106" >
+		<s3:get-object doc:name="GetS3Object" doc:id="d0f0612e-9c22-45ea-8cb8-a0fe7c118fcf" config-ref="Amazon_S3_Configuration" bucketName="rasamule" key="TransactionDump.csv" />
+		<file:write doc:name="WriteToCSV" doc:id="dd5673a9-37a2-4b8a-b228-d6aaeac6ee4b" config-ref="File_Config" path="mule-pipeline/transactions.csv" />
+	</sub-flow>
+	<sub-flow name="AcquireSalesforce" doc:id="b583ca53-4f10-4848-9d9f-771bfeaf170a" >
+		<salesforce:query doc:name="Query" doc:id="bb919550-440f-4e87-905f-86301ec0ddc4" config-ref="Salesforce_Config">
+			<salesforce:salesforce-query >SELECT  customerID__c,  gender__c,  SeniorCitizen__c,  Partner__c,  Dependents__c,  tenure__c FROM Account
+WHERE customerID__c  != null</salesforce:salesforce-query>
+		</salesforce:query>
+		<ee:transform doc:name="Transform Message" doc:id="087cfe34-3212-499f-b4e1-4d38378fabf6" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/csv headerLineNumber = 0 , header = true
+---
+payload map ( payload01 , indexOfPayload01 ) -> {
+	customerID: payload01.customerID__c,
+	gender: payload01.gender__c,
+	SeniorCitizen: payload01.SeniorCitizen__c,
+	Partner: payload01.Partner__c,
+	Dependents: payload01.Dependents__c as String,
+	tenure: payload01.tenure__c,
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<file:write doc:name="WriteToCSV" doc:id="dd5673a9-37a2-4b8a-b228-d6aaeac6ee4b" config-ref="File_Config" path="mule-pipeline/salesforce.csv" />
+	</sub-flow>
+	<sub-flow name="TrainModel" doc:id="61e855b9-c0b2-4b9f-b815-b00ef38e0196">
+		<scripting:execute doc:name="Execute" doc:id="d2852ce4-0210-4517-83b6-852f29b87ce7" engine="groovy">
+					<scripting:code>def command = &quot;git --version&quot;
+def proc = command.execute()
+proc.waitFor()              
+return proc.exitValue()
+</scripting:code>
+				</scripting:execute>
+		<logger level="INFO" doc:name="Logger" doc:id="70b7cd17-be24-4adf-92c2-db2cb055ab07" message="Training is up to date.  Nothing to do." />
+	</sub-flow>
+</mule>
