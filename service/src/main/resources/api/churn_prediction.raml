@@ -1,0 +1,34 @@
+#%RAML 1.0
+baseUri: https://mocksvc.mulesoft.com/mocks/d0de9712-8a54-4180-9e44-d4359ad4484b # 
+title: ChurnPrediction
+version: v1
+
+traits:
+  client-id-required:
+    headers:
+      client_id:
+        type: string
+      client_secret:
+        type: string
+
+/predict:
+  get:
+    is: [client-id-required]
+    description: |
+      given a customer id, predict whether the customer will leave in the next month
+    queryParameters: 
+      customerId:
+        required: true
+        type: string
+        example: "7590-VHVEG"        
+    responses:
+      200:
+        body:
+          application/json:
+            example: |
+              {"churn": "yes", "probability": 0.6}
+      404:
+        body:
+          application/json:
+            example: |
+              {"message": "Customer not found"}

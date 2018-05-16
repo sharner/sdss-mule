@@ -31,3 +31,12 @@ vignettes/*.pdf
 # Temporary files created by R markdown
 *.utf8.md
 *.knit.md
+
+.idea
+*.h5
+serving/target/
+serving/project/project/
+serving/project/project/
+serving/project/target/
+service/target/
+pipeline/target/
