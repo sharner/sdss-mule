@@ -15,6 +15,6 @@ CREATE TABLE Billing (
   PaymentMethod VARCHAR(30) NOT NULL
 );
 
-COPY Billing (CreatedAt, customerID, PhoneService, MultipleLines, InternetService, OnlineSecurity, OnlineBackup, DeviceProtection, TechSupport, StreamingTV, StreamingMovies, Contract, PaperlessBilling, PaymentMethod
+COPY Billing (customerID, PhoneService, MultipleLines, InternetService, OnlineSecurity, OnlineBackup, DeviceProtection, TechSupport, StreamingTV, StreamingMovies, Contract, PaperlessBilling, PaymentMethod
 )
-FROM '/home/automapper/BillingDB.csv' DELIMITER ',' CSV HEADER;
+FROM '/Users/sorenharner/Dropbox/RasaMule/BillingDB.csv' DELIMITER ',' CSV HEADER;

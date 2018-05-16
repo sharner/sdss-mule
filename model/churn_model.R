@@ -3,15 +3,13 @@
 library(tidyverse)
 library(readr)
 library(keras)
-library(lime)
-library(tidyquant)
 library(rsample)
 library(recipes)
 library(yardstick)
 library(corrr)
 
 # Load and prune data
-churn_data_raw <- read_csv("../WA_Fn-UseC_-Telco-Customer-Churn.csv")
+churn_data_raw <- read_csv("WA_Fn-UseC_-Telco-Customer-Churn.csv")
 churn_data_tbl <- churn_data_raw %>%
   select(-customerID) %>%
   drop_na() %>%
