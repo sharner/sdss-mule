@@ -31,6 +31,32 @@
         <types:property name="isQuotedString" value="false"/>
       </types:properties>
     </types:type>
+    <types:type name="DBSelect" format="json">
+      <types:example format="json" location="examples/dboutput.json"/>
+    </types:type>
+    <types:type name="BillingCSV" format="csv">
+      <types:shape format="weave"><![CDATA[type BillingCSV = Array<{|
+  contract?: String, 
+  createdat?: String, 
+  paperlessbilling?: String, 
+  deviceprotection?: String, 
+  onlinebackup?: String, 
+  multiplelines?: String, 
+  phoneservice?: String, 
+  customerid?: String, 
+  streamingmovies?: String, 
+  techsupport?: String, 
+  paymentmethod?: String, 
+  streamingtv?: String, 
+  internetservice?: String, 
+  column_13?: String
+|}> {"MetadataFormat": "csv"}]]></types:shape>
+      <types:properties>
+        <types:property name="headerLineNumber" value="0"/>
+        <types:property name="header" value="true"/>
+        <types:property name="isQuotedString" value="false"/>
+      </types:properties>
+    </types:type>
   </types:catalog>
   <types:enrichment select="#bb919550-440f-4e87-905f-86301ec0ddc4">
     <types:processor-declaration>
@@ -59,9 +85,23 @@
     <types:processor-declaration>
       <types:input-event>
         <types:message>
-          <types:payload type="SalesforceQueryOut"/>
+          <types:payload type="BillingCSV"/>
         </types:message>
       </types:input-event>
+    </types:processor-declaration>
+  </types:enrichment>
+  <types:enrichment select="#f9b80def-1e4f-456f-b033-62fed73ec93e">
+    <types:processor-declaration>
+      <types:input-event>
+        <types:message>
+          <types:payload type="DBSelect[]"/>
+        </types:message>
+      </types:input-event>
+      <types:output-event>
+        <types:message>
+          <types:payload type="BillingCSV"/>
+        </types:message>
+      </types:output-event>
     </types:processor-declaration>
   </types:enrichment>
 </types:mule>

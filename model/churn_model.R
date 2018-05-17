@@ -136,8 +136,8 @@ tibble(
 estimates_keras_tbl %>% f_meas(truth, estimate, beta = 1)
 
 # Save the test set and the model
-save_model_hdf5(model_keras, filepath="churn_model.h5",
+save_model_hdf5(model_keras, filepath="/tmp/mule-pipeline/churn_model.h5",
                 overwrite = TRUE, include_optimizer = TRUE)
 churn_data_raw_tbl <- bake(rec_obj, newdata = churn_data_raw %>% select (-customerID)) %>% select(-Churn)
 churn_data_raw_tbl <- bind_cols(churn_data_raw %>% select(customerID), churn_data_raw_tbl)
-write_csv(churn_data_raw_tbl, path="churn_data_raw_tbl.csv", col_names=FALSE)
+write_csv(churn_data_raw_tbl, path="/tmp/mule-pipeline/churn_data_raw_tbl.csv", col_names=FALSE)
