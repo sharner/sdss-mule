@@ -1,2 +1,3 @@
-# sdss-mule
-A recommendation system created with Mule and Keras
+# An Example of Churn Prediction API and Model
+
+This repo is an end-to-end example that shows how to combine MuleSoft and Tensorflow to create an end-to-end machine learning pipeline as well as a prediction API for churn.  It is explained the the [SDSS Presentation](https://www.slideshare.net/sorenharner/intelligent-application-networks-with-mule-and-tensorflow).  A video of the demo is coming soon....
