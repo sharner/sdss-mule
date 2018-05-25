@@ -17,6 +17,7 @@ To run the Mule Applications, you need first need to install some prerequisites.
 5. Download and install [Postgres](https://www.postgresql.org/download/).
 6. Set up a [Salesforce Development Account](https://developer.salesforce.com/signup).
 7. Create a new Bucket on AWS, and install the [AWS CLI](https://aws.amazon.com/cli/).
+8. Set up a trial [Anypoint Platform](https://www.mulesoft.com/platform/enterprise-integration) account
 
 # Loading the data
 
