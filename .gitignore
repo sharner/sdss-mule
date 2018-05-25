@@ -40,3 +40,6 @@ serving/project/project/
 serving/project/target/
 service/target/
 pipeline/target/
+.Rproj.user
+pipeline/src/main/resources/dev.yaml
+.classpath
