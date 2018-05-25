@@ -23,7 +23,7 @@ To run the Mule Applications, you need first need to install some prerequisites.
 
 The main idea of this demonstration is that Mule can accelerate the data science by making it easy to pull data from different systems.  To demonstrate this, we will first split the data into three groups for `customer data`, `billing data`, and `transaction data`, which will be imported into `Salesforce`, `Postgres`, and `S3`, respectively.  The demonstration will then show how to fetch data from these systems using Mule as part of an ML pipeline.
 
-First, run the R function to prepare the data and install R packages.  Set `INSTALL_DIR` to be the base directory of this repo.
+First, run the R function to prepare the data and install R packages.  Set `INSTALL_DIR` to be the base directory of this repo.  Run the following in the terminal:
 
 ```
 BASE_DIR="$HOME/sdss-mule"
@@ -42,3 +42,20 @@ Second, upload the `customer_fields.csv` to Salesforce.  Add the new fields to t
 | tenure | Number(4, 0) |
 
 Then, using the Import Data Wizard, which you can find under `Setup > Data`.  If you run into trouble, you can use `Setup > Data > Mass Delete Records` to remove accounts and try again.
+
+Third, import `billing_fields.csv` into Postgres.   For convenience, we've created a SQL script do to the heavy work.  Run the following in the terminal to import the data into postgres.  You many need to adapt the command depending on where your postgres DB is running.  If postgres isn't local, you'll need to copy `billing_fields.csv` to a location on the server and edit the SQL script accordingly.
+
+```
+psql -f ./pipeline/dbschema.sql
+```
+Last, copy `transactions_fields.csv` to your S3 bucket using your AWS CLI.  Follow the instruction for configuring the CLI.  Then run the command in the terminal, modifying it for your S3 bucket name.
+
+```
+aws s3 cp transactions_fields.csv s3://rasamule/
+```
+# Run the ML Pipeline
+
+
+# Building the Prediction Library
+
+Follow the steps in the `serving` subdirectory the prediction library and
