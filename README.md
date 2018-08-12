@@ -53,9 +53,4 @@ Last, copy `transactions_fields.csv` to your S3 bucket using your AWS CLI.  Foll
 ```
 aws s3 cp transactions_fields.csv s3://rasamule/
 ```
-# Run the ML Pipeline
 
-
-# Building the Prediction Library
-
-Follow the steps in the `serving` subdirectory the prediction library and
